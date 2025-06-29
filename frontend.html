@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tech Support Chat</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 400px;
+        margin: 40px auto;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 0.5em;
+        margin-top: 0.2em;
+      }
+      button {
+        margin-top: 1em;
+        padding: 0.7em 1.5em;
+      }
+      #answer {
+        margin-top: 2em;
+        background: #f0f0f0;
+        padding: 1em;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Ask Tech Support</h2>
+    <form id="chatForm">
+      <label
+        >Email
+        <input
+          type="email"
+          id="user_email"
+          value="oleksii.ablitsov@gmail.com"
+          required
+        />
+      </label>
+      <label
+        >Subject
+        <input
+          type="text"
+          id="subject"
+          value="My laptop is not working"
+          required
+        />
+      </label>
+      <label
+        >Description
+        <textarea id="description" rows="4" required>
+          I have a problem with my laptop. It is not turning on.
+        </textarea>
+      </label>
+      <button type="submit">Send</button>
+    </form>
+    <div id="answer"></div>
+    <script>
+      document.getElementById("chatForm").onsubmit = async function (e) {
+        e.preventDefault();
+        const user_email = document.getElementById("user_email").value;
+        const subject = document.getElementById("subject").value;
+        const description = document.getElementById("description").value;
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_email, subject, description }),
+        });
+        const data = await res.json();
+        document.getElementById("answer").innerText = data.answer;
+      };
+    </script>
+  </body>
+</html>
