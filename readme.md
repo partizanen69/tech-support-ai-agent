@@ -27,26 +27,22 @@ alembic init migrations
 alembic revision --autogenerate -m "Create initial tables"
 alembic upgrade head
 
-# run app
-docker compose up
-python main.py
-
 # run tests
 PYTHONPATH=$PYTHONPATH:. pytest tests/
 PYTHONPATH=$PYTHONPATH:. pytest tests/ --cov=src --cov-report=term
 pytest --cov=src
 ```
 
-# Run application
+### Run application
 
 ```
+docker compose up
 uvicorn main:app --reload
 ```
 
 curl localhost:8000/healthcheck
 
-# Ingest knowledge base into postgres as vectors
-# One time operation
+### Ingest knowledge base into postgres as vectors (one time operation)
 ```
 poetry run python -m src.db.ingest_knowledge
 ```
