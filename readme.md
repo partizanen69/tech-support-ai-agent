@@ -46,3 +46,6 @@ curl localhost:8000/healthcheck
 ```
 poetry run python -m src.db.ingest_knowledge
 ```
+
+
+tree -I '__pycache__/|.venv|postgres_data|.vscode|migrations|tech-support-ai-agent.code-workspace|docs'

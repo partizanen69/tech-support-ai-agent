@@ -6,75 +6,174 @@
     <title>Tech Support Chat</title>
     <style>
       body {
-        font-family: sans-serif;
-        max-width: 400px;
+        font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+        background: #f6f8fa;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card {
+        background: #fff;
+        max-width: 420px;
+        width: 100%;
         margin: 40px auto;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08), 0 1.5px 4px 0 rgba(0,0,0,0.03);
+        padding: 2.5em 2em 2em 2em;
+      }
+      h2 {
+        margin-top: 0;
+        margin-bottom: 1.5em;
+        font-weight: 600;
+        color: #2d3748;
+        text-align: center;
+        letter-spacing: 0.01em;
       }
       label {
         display: block;
-        margin-top: 1em;
+        margin-top: 1.2em;
+        font-weight: 500;
+        color: #374151;
       }
       input,
       textarea {
         width: 100%;
-        padding: 0.5em;
-        margin-top: 0.2em;
+        padding: 0.7em 1em;
+        margin-top: 0.3em;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1em;
+        background: #f9fafb;
+        transition: border 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+        outline: none;
+      }
+      input:focus,
+      textarea:focus {
+        border-color: #3182ce;
+        box-shadow: 0 0 0 2px #bee3f8;
+        background: #fff;
       }
       button {
-        margin-top: 1em;
-        padding: 0.7em 1.5em;
+        margin-top: 1.5em;
+        padding: 0.9em 2em;
+        background: linear-gradient(90deg, #3182ce 0%, #63b3ed 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 8px 0 rgba(49,130,206,0.08);
+        transition: background 0.2s, transform 0.1s;
+        position: relative;
+        overflow: hidden;
+      }
+      button[disabled] {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      .loader {
+        display: inline-block;
+        width: 1.2em;
+        height: 1.2em;
+        border: 2.5px solid #fff;
+        border-top: 2.5px solid #4299e1;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        vertical-align: middle;
+        margin-left: 0.7em;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
       #answer {
         margin-top: 2em;
-        background: #f0f0f0;
-        padding: 1em;
-        border-radius: 5px;
+        background: #f1f5f9;
+        padding: 1.2em 1em;
+        border-radius: 10px;
+        min-height: 2.5em;
+        color: #2d3748;
+        font-size: 1.05em;
+        box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+        border: 1px solid #e2e8f0;
+        word-break: break-word;
+      }
+      @media (max-width: 500px) {
+        .card {
+          padding: 1.2em 0.5em 1.5em 0.5em;
+        }
+        h2 {
+          font-size: 1.2em;
+        }
       }
     </style>
   </head>
   <body>
-    <h2>Ask Tech Support</h2>
-    <form id="chatForm">
-      <label
-        >Email
-        <input
-          type="email"
-          id="user_email"
-          value="oleksii.ablitsov@gmail.com"
-          required
-        />
-      </label>
-      <label
-        >Subject
-        <input
-          type="text"
-          id="subject"
-          value="Не вдалося здійснити оплату"
-          required
-        />
-      </label>
-      <label
-        >Description
-        <textarea id="description" rows="4" required>
-          Мені не вдалося здійснити оплату — що мені робити, щоб завершити оплату?
-        </textarea>
-      </label>
-      <button type="submit">Send</button>
-    </form>
-    <div id="answer"></div>
+    <div class="card">
+      <h2>Спитайте технічну підтримку</h2>
+      <form id="chatForm">
+        <label
+          >Email
+          <input
+            type="email"
+            id="user_email"
+            value="oleksii.ablitsov@gmail.com"
+            required
+          />
+        </label>
+        <label
+          >Тема
+          <input
+            type="text"
+            id="subject"
+            value="Не вдалося здійснити оплату"
+            required
+          />
+        </label>
+        <label
+          >Опис проблеми
+          <textarea id="description" rows="4" required
+          >Мені не вдалося здійснити оплату — що мені робити, щоб завершити оплату?
+          </textarea>
+        </label>
+        <button type="submit" id="submitBtn">
+          Відправити
+          <span id="btnLoader" class="loader" style="display: none;"></span>
+        </button>
+      </form>
+      <div id="answer" style="display: none">
+        <h3>Відповідь від технічної підтримки</h3>
+        <p id="answerText"></p>
+      </div>
+    </div>
     <script>
       document.getElementById("chatForm").onsubmit = async function (e) {
         e.preventDefault();
         const user_email = document.getElementById("user_email").value;
         const subject = document.getElementById("subject").value;
         const description = document.getElementById("description").value;
+        document.getElementById("answer").style.display = "none";
+        document.getElementById("answerText").innerText = "Обробка запиту...";
+        // Disable button and show loader
+        const btn = document.getElementById("submitBtn");
+        const loader = document.getElementById("btnLoader");
+        btn.disabled = true;
+        loader.style.display = "inline-block";
         const res = await fetch("/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_email, subject, description }),
         });
         const data = await res.json();
-        document.getElementById("answer").innerText = data.answer;
+        document.getElementById("answerText").innerText = data.answer;
+        document.getElementById("answer").style.display = "block";
+        // Enable button and hide loader
+        btn.disabled = false;
+        loader.style.display = "none";
       };
     </script>
   </body>

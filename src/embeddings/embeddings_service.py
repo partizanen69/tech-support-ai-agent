@@ -1,5 +1,4 @@
 from sentence_transformers import SentenceTransformer
-from torch import Tensor
 
 
 class EmbeddingsService:
